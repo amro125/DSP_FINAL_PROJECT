@@ -18,7 +18,7 @@ def resampling(new_rate, cAudioFilePath):
     
 #new_rate = 22050
 #fs, x = wavfile.read("")
-pizza = resampling(22050, "ProjectstudiomvmtIIfinal.wav")    
+#test = resampling(22050, "ProjectstudiomvmtIIfinal.wav")    
 
 
 
