@@ -12,13 +12,3 @@ def tremolo( amp, speed, x, fs=44100):
     tremoloI = (x*lfo)                #applies lfo
     return tremoloI
 
-
-    def distortion(x, fs):
-        th = max(fs)
-        out = x * fs
-        for i in range(len(out)):
-            if(abs(out[i])>th):
-                out[i] = abs(out[i])/out[i]*th
-        print(out)
-
-    distortion(x, fs)
