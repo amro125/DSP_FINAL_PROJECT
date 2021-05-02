@@ -6,10 +6,8 @@ from scipy.io.wavfile import read as audioread
 #wavetable1 = t * (t < 0.5) + (-(t - 1)) * (t>= 0.5) #triangle wave
 
 
-def synthesize(sampling_speed, n_samples, cAudioFilePath):
+def synthesize(sampling_speed, n_samples):
     """Synthesizes a new waveform from an existing wavetable."""
-    fs, x = audioread(cAudioFilePath)
-    t = np.linspace(0, 1, num=100)
     wavetable = np.sin(np.sin(2 * np.pi * t)) # sine wave
     samples = []
     current_sample = 0
@@ -22,8 +20,6 @@ def synthesize(sampling_speed, n_samples, cAudioFilePath):
 
 def synthesize1(sampling_speed, n_samples, cAudioFilePath):
     """Synthesizes a new waveform from an existing wavetable."""
-    fs, x = audioread(cAudioFilePath)
-    t = np.linspace(0, 1, num=100)
     wavetable1 = t * (t < 0.5) + (-(t - 1)) * (t>= 0.5) #triangle wave
     samples = []
     current_sample = 0
