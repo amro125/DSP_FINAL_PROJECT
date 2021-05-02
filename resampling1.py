@@ -20,6 +20,7 @@ def resampling(new_rate, cAudioFilePath):
 #fs, x = wavfile.read("")
 #test = resampling(22050, "ProjectstudiomvmtIIfinal.wav")  
 #Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html
+#Reference: https://stackoverflow.com/questions/51420923/resampling-a-signal-with-scipy-signal-resample
 
 
 
