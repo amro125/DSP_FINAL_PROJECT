@@ -31,7 +31,7 @@ def lowpass(x, cutoff, order, fs):
 def butter_highpass(cutoff, fs, order):
     nyquistRate = 0.5 * fs
     normal_cutoff = cutoff / nyquistRate
-    (b, a) = signal.butter(order, normal_cutoff, btype='high', analog=False)
+    (b, a) = scipy.signal.butter(order, normal_cutoff, btype='high', analog=False)
     return b, a
 
 
