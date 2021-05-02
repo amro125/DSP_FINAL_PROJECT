@@ -30,7 +30,7 @@ def lowpass(x, cutoff, order, fs):
 def butter_highpass(cutoff, fs, order):
     nyquistRate = 0.5 * fs
     normal_cutoff = cutoff / nyquistRate
-    b, a = signal.butter(order, normal_cutoff, btype='high', analog=False)
+    (b, a) = signal.butter(order, normal_cutoff, btype='high', analog=False)
     return b, a
 
 
@@ -38,7 +38,7 @@ def butter_highpass(cutoff, fs, order):
 
 
 def butter_highpass_filter(x, cutoff, fs, order):
-    b, a = butter_highpass(cutoff, fs, order)
+    (b, a) = butter_highpass(cutoff, fs, order)
     filtered_sig1 = signal.filtfilt(b, a, x)
     return filtered_sig1
 
