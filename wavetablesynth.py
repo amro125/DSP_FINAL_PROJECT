@@ -35,6 +35,4 @@ def synthesize1(sampling_speed, n_samples, cAudioFilePath):
     return np.array(samples)
 
 # Reference: https://flothesof.github.io/Karplus-Strong-algorithm-Python.html
-#sample1 = synthesize(440, 300, "ProjectstudiomvmtIIfinal.wav")
-#sample2 = synthesize1(440, 800,"ProjectstudiomvmtIIfinal.wav")
 
