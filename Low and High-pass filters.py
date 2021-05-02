@@ -23,6 +23,7 @@ def lowpass(x, cutoff, order, fs):
 
     return filtered_sig
 
+#Reference: https://medium.com/analytics-vidhya/how-to-filter-noise-with-a-low-pass-filter-python-885223e5e9b7
 
 # In[3]:
 
