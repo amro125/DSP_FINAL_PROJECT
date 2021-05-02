@@ -18,7 +18,8 @@ def resampling(new_rate, cAudioFilePath):
     
 #new_rate = 22050
 #fs, x = wavfile.read("")
-#test = resampling(22050, "ProjectstudiomvmtIIfinal.wav")    
+#test = resampling(22050, "ProjectstudiomvmtIIfinal.wav")  
+#Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html
 
 
 
