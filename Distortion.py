@@ -26,3 +26,4 @@ def overdrive(audioin):
     return out
 
 #softclip_out = overdrive(audioin)
+#Reference: https://publish.illinois.edu/augmentedlistening/tutorials/music-processing/tutorial-3-amplitude-clipping-effects/
