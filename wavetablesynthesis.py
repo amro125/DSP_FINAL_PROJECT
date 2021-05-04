@@ -15,12 +15,12 @@ def make_sine_wavetable(n_samples, phases, amps, freqs):
                          amp / 2 * np.sin(np.sin(2 * np.pi * 2 * freq * t + phase))
     return wavetable
 
-def synthesize(sampling_speed, wavetable, n_samples):
+def synthesize(sampling_rate, wavetable, num_samples):
       """Synthesizes a new waveform from an existing wavetable."""
       samples = []
       current_sample = 0
-      while len(samples) < n_samples:
-          current_sample += sampling_speed
+      while len(samples) < num_samples:
+          current_sample += sampling_rate
           current_sample = current_sample % wavetable.size
           samples.append(wavetable[current_sample])
           current_sample += 1
