@@ -8,11 +8,11 @@ from scipy import signal
 
 
 
-def distortion(audioin, amplification, cAudioFilePath):
-    fs, audioin = read(cAudioFilePath)
-    audioin = audioin[:,0]
-    th = max(audioin)
-    out = audioin * amplification
+def distortion(data, amp, cAudioFilePath):
+    fs, data = read(cAudioFilePath)
+    data = data[:,0]
+    th = max(data)
+    out = data * amp
     for i in range(len(out)):
         if(abs(out[i])>th):
             out[i] = abs(out[i])/out[i]*th
@@ -20,9 +20,9 @@ def distortion(audioin, amplification, cAudioFilePath):
 
 #hardclip_out = distortion(audioin, 20.5, "ProjectStudiomvmtI final.wav")
 
-def overdrive(audioin):
+def overdrive(data):
 
-    out = np.arctan(audioin)
+    out = np.arctan(data)
     return out
 
 #softclip_out = overdrive(audioin)
