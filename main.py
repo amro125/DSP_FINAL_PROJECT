@@ -1,4 +1,4 @@
-# Amit Rogel and Lauren McCall's Final DSP Project
+# Amit Rogel and Lauren McCalls final DSP Project
 
 
 import math
@@ -276,7 +276,7 @@ def makefft(sig): # Makes an fft graph
 
 
 root = Tk()
-root.title("Simple Synth")
+root.title("Sunshine Synth")
 
 
 # Set up Note Buttons
@@ -331,7 +331,7 @@ waveoptions = OptionMenu(root, wavestyle,"Select Signal", "Additive Sin", "Addit
 wavestyle.set("Select Signal")
 waveoptions.grid(row=5, column=2, padx=10, pady=10)
 
-saveFile = Button(root, text="Save as WAV", padx=10, pady=20, command=lambda: save_as_wav("SimpleSynth.wav", signal, int(sampleRate.get())))
+saveFile = Button(root, text="Save as WAV", padx=10, pady=20, command=lambda: save_as_wav("SunshineSynth.wav", signal, int(sampleRate.get())))
 saveFile.grid(row=9, column=1, padx=10, pady=10)
 
 # Creates Entry for note list display
