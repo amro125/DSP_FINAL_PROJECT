@@ -15,10 +15,10 @@ from scipy.io.wavfile import read
 # In[2]:
 
 
-def lowpass(x, cutoff, order, fs):
-    nyquistRate = 0.5 * fs
-    normal_cutoff = cutoff / nyquistRate
-    (b,a) = butter(order, normal_cutoff, btype = 'low', analog = False)
+def lowpassfilt(x, cutoff, order, fs):
+    nyqRate = 0.5 * fs
+    original_cutoff = cutoff / nyqRate
+    (b,a) = butter(order, original_cutoff, btype = 'low', analog = False)
     filtered_sig = filtfilt(b,a,x)
 
     return filtered_sig
@@ -29,9 +29,9 @@ def lowpass(x, cutoff, order, fs):
 
 
 def butter_highpass(cutoff, fs, order):
-    nyquistRate = 0.5 * fs
-    normal_cutoff = cutoff / nyquistRate
-    (b, a) = butter(order, normal_cutoff, btype='high', analog=False)
+    nyqRate = 0.5 * fs
+    original_cutoff = cutoff / nyqRate
+    (b, a) = butter(order, original_cutoff, btype='high', analog=False)
     return b, a
 
 
