@@ -1,4 +1,9 @@
-# Amit Rogel and Lauren McCalls final DSP Project
+# This is a sample Python script.
+
+# Press Shift+F10 to execute it or replace it with your code.
+# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
+# The Fundamental Frequencies: A=55, r=1.0594 = exp(log(2)/12)
 
 
 import math
@@ -15,7 +20,11 @@ from matplotlib.pyplot import figure
 from scipy import fftpack
 from scipy import interpolate, signal
 from scipy.signal import sawtooth, square, butter, filtfilt
+from scipy.io.wavfile import write
+from scipy.io import wavfile
 
+
+# fundamental frequencies
 C = 32.7
 Csharp = Dflat = 34.65
 D = 36.71
@@ -31,15 +40,14 @@ B = 61.74
 C2 = 65.41
 note_list = []
 
-frate = 11025
-filename = 'tremolo.wav'
-
+# float(sampleRate.get())
 
 def save_as_wav(file, lst, size):
     amp = 8000.0
     nchannels = 1
     samples = 2
     wav_file = wave.open(file, "w")
+    frate = int(sampleRate.get())
     wav_file.setparams((nchannels, samples, frate, size, "NONE", "not compressed"))
     print("Generating file")
     for s in lst:
@@ -48,63 +56,74 @@ def save_as_wav(file, lst, size):
     print("Saved to ", file)
 
 
-def generate_wave_input(freq, length, phase=0.0):
+def sine(freq, length, phase=0.0):  # Makes a sine wave to use for effects
     rate = int(sampleRate.get())
     length = int(length * rate)
     t = np.arange(length) / float(rate)
     omega = float(freq) * 2 * math.pi
     phase *= 2 * math.pi
-    return omega * t + phase
-
-
-def sine(freq, length, phase=0.0):
-    rate = int(sampleRate.get())
-    data = generate_wave_input(freq, length, phase)
+    data = omega * t + phase
     return np.sin(data)
 
 
 def signalMaker(freq, octave, amp, size):  # Checks the typ of signal to generate
     setting = wavestyle.get()
+    for i in effects:
+        i.configure(bg='grey')
+    sample = int(sampleRate.get())
+    octave = 16
     global signal
     if setting == "Additive Sin":
-        sample = int(sampleRate.get())
-        signal = makesoundsin(note_list, 4, 4, sample)
+        signal = makesoundsin(note_list, octave, 4, sample)
+    if setting == "Additive Sawtooth":
+        signal = makesoundsaw(note_list, octave, 4, sample)
     if setting == "Additive Square":
-        sample = int(sampleRate.get())
-        signal = makesoundsquare(note_list, 4, 4, sample)
+        signal = makesoundsquare(note_list, octave, 4, sample)
     if setting == "Wavetable":
         waveT = ywave
-        n = int(sampleRate.get())
-        signal = synthesize(note_list, waveT, n)
+        signal = wavetable(note_list, waveT, sample, octave)
     return
 
+
+def makesoundsaw(freq, octave, amp, size):
+    # Additive Synth sawtooth wave
+    octavef = [x * octave for x in freq]
+    sines = [scipy.signal.sawtooth(math.pi * y * x / int(sampleRate.get())) for y in octavef for x in range(size)]
+    return sines
 
 def makesoundsquare(freq, octave, amp, size):
     # Additive Synth square wave
     octavef = [x * octave for x in freq]
-    sines = [signal.square(math.pi * y * x / int(sampleRate.get())) for y in octavef for x in range(size)]
+    sines = [scipy.signal.square(math.pi * y * x / int(sampleRate.get())) for y in octavef for x in range(size)]
     return sines
 
 
 def makesoundsin(freq, octave, amp, size):
-    #Additive Synth sound part
+    # Additive Synth sound part
     octavef = [x * octave for x in freq]
     sines = [np.sin(math.pi * y * x / int(sampleRate.get())) for y in octavef for x in range(size)]
     return sines
 
 
-def synthesize(freq, wavetable, n_samples):
+def wavetable(freq, wavetable, n_samples, octave):
     # Takes drawn wave and makes into sound based on note list
+    # Algorithm referenced from https://flothesof.github.io/Karplus-Strong-algorithm-Python.html
     samples = []
     sig =[]
     current_sample = 0
-    octavef = [x * 1 for x in freq]
+    new_x = np.concatenate([np.linspace(xwave[i], xwave[i + 1], num=30) for i in range(len(xwave) - 1)])
+    wavetable = np.interp(new_x, xwave, ywave)
+    if len(wavetable) != float(sampleRate.get()):
+        wavetablebig = resampling(wavetable, int(sampleRate.get()), len(wavetable))
+        print( "resaamples", len(wavetable), "to", int(sampleRate.get()))
+    print(len(wavetablebig))
+    octavef = [x * octave for x in freq]
     for sampling_speed in octavef:
         samples.clear()
         while len(samples) < n_samples:
             current_sample += int(sampling_speed)
-            current_sample = current_sample % wavetable.size
-            samples.append(wavetable[current_sample])
+            current_sample = current_sample % wavetablebig.size
+            samples.append(wavetablebig[current_sample])
             current_sample += 1
         sig += samples
     return sig
@@ -120,28 +139,9 @@ def feedback_modulated_delay(data, modwave, dry, wet):
     return out
 
 
-def reverb(data, modwave, dry, wet):
-    out = data.copy()
-    for i in range(len(data)):
-        index = int(i - modwave[i])
-        if index >= 0 and index < len(data):
-            out[i] = data[i] * dry + data[index] * wet
-    return out
-
-
-def Echo(data, freq, dry=0.5, wet=0.5, depth=0.5, delay=500.0, rate=3200):
-    length = float(len(data)) / rate
-    mil = float(rate) / 1000
-    delay *= mil
-    depth *= mil
-    modwave = np.empty(len(data))
-    for i in range(len(data)):
-        modwave[i] = data[i] * depth + delay
-    print(modwave)
-    return reverb(data, modwave, dry, wet)
-
-
 def flanger(data, freq, dry=0.5, wet=0.5, depth=20.0, delay=1.0, rate=3200):
+    # Referenced from Wybiral Github https://github.com/wybiral/python-musical/blob/master/musical/audio/effect.py
+    flangerbutton.configure(bg="green")
     length = float(len(data)) / rate
     mil = float(rate) / 1000
     delay *= mil
@@ -154,6 +154,8 @@ def flanger(data, freq, dry=0.5, wet=0.5, depth=20.0, delay=1.0, rate=3200):
 
 
 def lowpass(x, cutoff, order):
+    # referenced from https://flothesof.github.io/Karplus-Strong-algorithm-Python.html
+    lpf.configure(bg="green")
     nyquistRate = 0.5 * int(sampleRate.get())
     normal_cutoff = cutoff / nyquistRate
     (b, a) = butter(order, normal_cutoff, btype='low', analog=False)
@@ -171,6 +173,7 @@ def butter_highpass(cutoff, fs, order):
 
 
 def butter_highpass_filter(x, cutoff, order):
+    hpf.configure(bg="green")
     fs = int(sampleRate.get())
     b, a = butter_highpass(cutoff, fs, order)
     global signal
@@ -178,29 +181,37 @@ def butter_highpass_filter(x, cutoff, order):
     return
 
 
-def tremolo(x, amp, speed):
+def tremolo(x, amp, speed):  #Tremolo effect function creation
+    tremolobutton.configure(bg="green")
     fs = int(sampleRate.get())
     time = len(x)/fs
-    k = np.arange(0,time,1/fs)
+    k = np.arange(0, time, 1/fs)
     lfo = amp*np.sin(2*np.pi*speed*k)  # creates lfo
-    tremoloI = (x*lfo)   # applies lfo
+    if len(lfo) != len(x):
+       x=np.pad(x, (0, (len(lfo)-len(x))), 'edge')
+    print(len(lfo),len(x))
+    tremoloI = (x*lfo)
     global signal
     signal = tremoloI
     return
 
 
-def distortion(audioin, amplification):
+def distortion(audioin, amplification):  # manipulates based on arctan
+    distortionbutton.configure(bg='green')
     th = max(audioin)
-    for i in range(amplification):
-        out = audioin * amplification
-        np.arctan(audioin)
+    out = []
+    out.clear()
+    for i in audioin:
+        out.append(np.arctan(i*amplification)/np.arctan(amplification))
     global signal
-    signal = out
+    length = float(len(out))/float(sampleRate.get())
+    signal = out*sine(262, length)
     return
 
 
 def reverb(audio, echodur, delay_amp, sample):  # Convolution Reverb
-    sample = float(sample)
+    reverbbutton.configure(bg='green')
+    sample = int(sampleRate.get())
     delay_len_samples = round(echodur * sample)
     leading_zero_padding_sig = np.zeros(delay_len_samples)
     impulse_response = np.zeros(delay_len_samples)
@@ -223,13 +234,19 @@ def resampling(audio, new_rate, fs):  # Resampling
     sampleRate.insert(0,new_rate)
     global signal
     signal = new_audio
-    return
+    return new_audio
 
 
-def overdrive(audioin):  # Overdrive Filter
-    out = np.arctan(audioin)
-    global signal
-    signal = out
+def bitchange(x):
+    bit = bitrate.get()
+    if bit == "8 bit":
+        scaled = np.int8(x/np.max(np.abs(x)) * 255)
+        file = 'SunshineSynth8bit.wav'
+    if bit == "16 bit":
+        scaled = np.int8(x /np.max(np.abs(x)) * 32767)
+        file = 'SunshineSynth16bit.wav'
+    write(file, int(sampleRate.get()), scaled)  # Write to file.
+    print("saved new bit to ", file)
     return
 
 
@@ -241,12 +258,20 @@ def noteClick(number, letter):  # adds notes to list
     e.insert(0, str(current) + letter)
 
 
+def clearwave():  # this clears the wavetable drawing
+    canvas.delete("all")
+    xpos.clear()
+    ypos.clear()
+
+
 def clear():  # This clears all the note inputs for wavetable and additive
     e.delete(0, END)
     note_list.clear()
     canvas.delete("all")
     xpos.clear()
     ypos.clear()
+    for i in effects:
+        i.configure(bg='grey')
     print("Reset!")
 
 
@@ -260,18 +285,19 @@ def makegraph(audio):  # Makes a graph of the signal
 
 
 def makefft(sig): # Makes an fft graph
-    sig_fft = fftpack.fft(sig)
-    # And the power (sig_fft is of complex dtype)
-    power = np.abs(sig_fft) ** 2
-    # The corresponding frequencies
-    sigsize=int(len(sig))
-    step = 1/int(sampleRate.get())
-    sample_freq = fftpack.fftfreq(sigsize, step)
-    # Plot the FFT power
+    xfft = np.fft.fft(sig)  # takes fft
+    xabs = np.abs(xfft)  # takes magnintude
+    xphase = np.angle(xfft)  # takes phase
+
+    # Plot the FFT
     plt.figure(figsize=(6, 5))
-    plt.plot(sample_freq, power)
-    plt.xlabel('Frequency [Hz]')
-    plt.ylabel('plower')
+    fig, (ax1, ax2) = plt.subplots(2)
+    ax1.plot(xabs)
+    ax1.set_title('Magnitude and Phase Graph')
+    ax1.set(ylabel='Magnitude')
+    ax2.plot(xphase)
+    ax2.set(xlabel='Frequency (Hz)', ylabel='Phase')
+    fig.savefig('Q3_square.jpg')
     plt.show()
 
 
@@ -327,7 +353,7 @@ GenerateWave.grid(row=5, column=0)
 
 # Select signal type
 wavestyle = StringVar()
-waveoptions = OptionMenu(root, wavestyle,"Select Signal", "Additive Sin", "Additive Square", "Wavetable")
+waveoptions = OptionMenu(root, wavestyle,"Select Signal", "Additive Sin", "Additive Square", "Additive Sawtooth", "Wavetable")
 wavestyle.set("Select Signal")
 waveoptions.grid(row=5, column=2, padx=10, pady=10)
 
@@ -345,7 +371,7 @@ SRlabel.place(x=10, y=10)
 SR2label = Label(root, text="Rate")
 SR2label.place(x=10, y=25)
 sampleRate = Entry(root, width=10, borderwidth=5)
-sampleRate.insert(0, 3200)
+sampleRate.insert(0, 48000)
 sampleRate.grid(row=0, column=0, padx=10, pady=10)
 
 
@@ -445,8 +471,15 @@ lpforder.grid(row=8, column=5, padx=10, pady=10)
 resamplebut = Button(root, text="Resample", padx=10, pady=20, command=lambda: resampling(signal, int(newsr.get()), int(sampleRate.get())))
 resamplebut.grid(row=8, column=6, padx=10, pady=10)
 newsr = Entry(root, width=10, borderwidth=5)
-newsr.insert(0, 4800)
+newsr.insert(0, 32000)
 newsr.grid(row=8, column=7, padx=10, pady=10)
+
+bitbut = Button(root, text="Resample", padx=10, pady=20, command=lambda: bitchange(signal))
+bitbut.grid(row=7, column=6, padx=10, pady=10)
+bitrate = StringVar()
+bitoptions = OptionMenu(root, bitrate, "Select bitrate", "8 bit", "16 bit")
+bitrate.set("Select bitrate")
+bitoptions.grid(row=7, column=7, padx=10, pady=10)
 
 # signal graphs
 signalgraph = Button(root, text="Show graph", padx=10, pady=20, command=lambda: makegraph(signal))
@@ -455,10 +488,14 @@ signalgraph.grid(row=9, column=4, padx=10, pady=10)
 fftgraph = Button(root, text="Show fft", padx=10, pady=20, command=lambda: makefft(signal))
 fftgraph.grid(row=9, column=6, padx=10, pady=10)
 
-
+effects = [flangerbutton, reverbbutton, distortionbutton, tremolobutton, hpf, lpf]
 xwave = []
 
-wavelabel = Label(root, text="WaveTable")
+
+
+# Setups up wave table drawing
+
+wavelabel = Label(root, text="WaveTable")  #labeling
 wavelabel.place(x=40, y=560)
 canvas = tk.Canvas(root, width=1600, height=400, highlightthickness=1, highlightbackground="black")
 canvas.grid(row=10, column=0, columnspan=9, padx=10, pady=10)
@@ -466,28 +503,29 @@ canvas.old_coords = None
 xpos = []
 ypos = []
 
-# Setups up wave table drawing
+waveclearbutton = Button(root, text="Clear Wave", padx=10, pady=20, command=lambda: clearwave())
+waveclearbutton.grid(row=9, column=7, padx=10, pady=10)
 
-
+# Recognizes a user clicking in the box
 def click(click_event):
     global prev
     prev = click_event
 
-
+# starts tracking their mouse movements
 def move(move_event):
     global prev
-    canvas.create_line(prev.x, prev.y, move_event.x, move_event.y, width=2)
+    canvas.create_line(prev.x, prev.y, move_event.x, move_event.y, width=2)  # takes the delta  x and y position, then store them as points for an array
     global xwave
     global ywave
-    if move_event.x > prev.x:
-        xpos.append(move_event.x)
-        ypos.append((move_event.y-200)/-400)
-        xwave = np.array(xpos)
-        ywave = np.array(ypos)
-        print('{}, {}'.format(move_event.x, move_event.y))
+    # if move_event.x > prev.x:
+    xpos.append(move_event.x)
+    ypos.append((move_event.y-200)/-400)  # normalizes the amplitude and shifts it to go from -1 to 1
+    xwave = np.array(xpos)
+    ywave = np.array(ypos)
+    print('{}, {}'.format(move_event.x, move_event.y))
     prev = move_event
 
-
+#  binds the buttons for each function
 canvas.bind('<Button-1>', click)
 canvas.bind('<B1-Motion>', move)
 
