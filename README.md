@@ -15,6 +15,10 @@ Effects can be applied by clicking on the button. The button will turn green onc
 
 If you need to undo and start your effects over, clikc the generate sound signal button. Clicking clear in the top will erase the note progression. Selecting the clear wave erases the drawn wave
 
+## 4) View the sound
+
+You can show a graph of the sound signal or an fft plot that will display phase and magnitude
+
 ## 4) Exporting sound file
 
 You can downsample you file by setting the new sample rate and hitting "resample." You can also create a lower bit depth with the bit depth button. If you would like to export your file normally, click the "save as wav" button. This will export your file as a wav file under the name "sunshinesynth.wav"
