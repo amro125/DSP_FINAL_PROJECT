@@ -19,6 +19,6 @@ If you need to undo and start your effects over, clikc the generate sound signal
 
 You can show a graph of the sound signal or an fft plot that will display phase and magnitude
 
-## 4) Exporting sound file
+## 5) Exporting sound file
 
 You can downsample you file by setting the new sample rate and hitting "resample." You can also create a lower bit depth with the bit depth button. If you would like to export your file normally, click the "save as wav" button. This will export your file as a wav file under the name "sunshinesynth.wav"
