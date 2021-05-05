@@ -12,7 +12,7 @@ def bitdepth16(sampling_rate, freq, duration, data):
     scaled = np.int16(data/np.max(np.abs(data)) * 32767) 
     write('test1.wav', 44100, scaled) # Write to file. Can be overridden
     
-bitdepth16(44100, 150, 3)
+#bitdepth16(44100, 150, 3)
 
 
 
@@ -26,4 +26,4 @@ def bitdepth8(sampling_rate, freq, duration, data):
     scaled = np.int8(data/np.max(np.abs(data)) * 256) 
     write('test2.wav', 44100, scaled) # Write to file. Can be overridden
     
-bitdepth8(44100, 150, 3)
+#bitdepth8(44100, 150, 3)
