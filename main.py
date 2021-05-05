@@ -1,9 +1,5 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-# The Fundamental Frequencies: A=55, r=1.0594 = exp(log(2)/12)
+# DSP Final Project.
+# Amit Rogel and Lauren McCall
 
 
 import math
@@ -42,8 +38,7 @@ note_list = []
 
 # float(sampleRate.get())
 
-def save_as_wav(file, lst, size):
-    amp = 8000.0
+def save_as_wav(file, lst, size, amp):
     nchannels = 1
     samples = 2
     wav_file = wave.open(file, "w")
@@ -239,14 +234,19 @@ def resampling(audio, new_rate, fs):  # Resampling
 
 def bitchange(x):
     bit = bitrate.get()
+    global signal
     if bit == "8 bit":
-        scaled = np.int8(x/np.max(np.abs(x)) * 255)
+        scaled = np.int8(x/np.max(np.abs(x)) * 255)  # downquantizes based on 2^8 -1
         file = 'SunshineSynth8bit.wav'
     if bit == "16 bit":
-        scaled = np.int8(x /np.max(np.abs(x)) * 32767)
+        scaled = np.int8(x /np.max(np.abs(x)) * 32767)  # downquantizes based on 2^15 -1
+        print(scaled)
         file = 'SunshineSynth16bit.wav'
-    write(file, int(sampleRate.get()), scaled)  # Write to file.
+    save_as_wav(file, scaled, int(sampleRate.get()), amp=100.0)
+    # write(file, int(sampleRate.get()), scaled)  # Write to file.
+    signal = scaled
     print("saved new bit to ", file)
+
     return
 
 
@@ -357,7 +357,7 @@ waveoptions = OptionMenu(root, wavestyle,"Select Signal", "Additive Sin", "Addit
 wavestyle.set("Select Signal")
 waveoptions.grid(row=5, column=2, padx=10, pady=10)
 
-saveFile = Button(root, text="Save as WAV", padx=10, pady=20, command=lambda: save_as_wav("SunshineSynth.wav", signal, int(sampleRate.get())))
+saveFile = Button(root, text="Save as WAV", padx=10, pady=20, command=lambda: save_as_wav("SunshineSynth.wav", signal, int(sampleRate.get()), amp=8000.0))
 saveFile.grid(row=9, column=1, padx=10, pady=10)
 
 # Creates Entry for note list display
@@ -474,7 +474,7 @@ newsr = Entry(root, width=10, borderwidth=5)
 newsr.insert(0, 32000)
 newsr.grid(row=8, column=7, padx=10, pady=10)
 
-bitbut = Button(root, text="Resample", padx=10, pady=20, command=lambda: bitchange(signal))
+bitbut = Button(root, text="Bit Depth", padx=10, pady=20, command=lambda: bitchange(signal))
 bitbut.grid(row=7, column=6, padx=10, pady=10)
 bitrate = StringVar()
 bitoptions = OptionMenu(root, bitrate, "Select bitrate", "8 bit", "16 bit")
