@@ -1,0 +1,3 @@
+
+All of the examples were completed by drawing out a custom wave in the wavetable option and applying effects to them. 
+The pictures attached are the waves drawn to get these effects.
